@@ -1,3 +1,47 @@
+import Mailgen from "mailgen";
+import nodemailer from "nodemailer";
+
+const sendEmail = async(options) => {
+    const mailGenerator = new Mailgen({
+        theme: 'default', 
+        product: {
+            name : 'mailgen',
+            link: "https://taskmanager.com"
+        }
+    })
+
+    const emailTextual = mailGenerator.generatePlaintext(options.mailgenContent)
+    
+    const emailHtml = mailGenerator.generate(options.mailgenContent)
+
+    nodemailer.createTransport({
+        host: "http:example.com",
+        port: 587,
+        secure: false,
+        auth:{
+            user: process.env.SMTP_MAILTRAP_HOST,
+            pass: process.env.SMTP_MAILTRAP_PASSWORD
+        }
+    })
+
+    const email = {
+        from: "mail.taskmanager@exp.com",
+        to: options.email,
+        subject: options.subject,
+        text: emailTextual,
+        html: emailHtml
+    }
+
+    try {
+        await transporter.sendEmail(email)
+    } catch (error) {
+        console.log("Error while sending email: ", error)
+    }
+
+
+}
+
+
 const emailVerficationMailgenContent = (username, verficationUrl)=>{
     return{ 
         body: {
@@ -35,6 +79,7 @@ const forgotPasswordMailgenContent = (username, passwordresetUrl)=>{
 
 export{
     forgotPasswordMailgenContent,
-    emailVerficationMailgenContent
+    emailVerficationMailgenContent,
+    sendEmail
 }
 
