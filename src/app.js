@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors"
 import { healthcheckRoute } from "./controllers/healthcheck.controllers.js";
+import authRouter from "./routes/auth.routes.js"
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(cors({
 
 // route import 
 app.use("/api/v1/healthcheck", healthcheckRoute)
+app.use("/api/v1/auth", authRouter)
 
 app.get("/", (req, res) => {
    res.send("app is listening");

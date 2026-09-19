@@ -20,7 +20,7 @@ const generateAccessAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-   const { email, password, username } = req.body;
+   const { email, password, username, fullname } = req.body;
 
    const existedUser = await User.findOne({
       $or: [{ email }, { username }],
@@ -34,8 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
       username,
       email,
       password,
-      fullname,
-      emailVerificationToken,
+      fullname
    });
 
    const { unhashedToken, hashedToken, tokenExpiry } =
@@ -46,7 +45,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
    await user.save({ validateBeforeSave: false });
 
-   await sendEmail({
+   await sendEmail({ 
       email: user?.email,
       subject: "verify your email",
       mailgenContent: emailVerficationMailgenContent(
@@ -56,9 +55,10 @@ const registerUser = asyncHandler(async (req, res) => {
    });
 
    const createdUser = await User.findById(user._id).select(
-      "-password -refreshToken -emailVerificationToken ",
+      "-password ",
    );
 
+   console.log("created User : ", createdUser)
    if (!createdUser) {
       throw new ApiError(401, "User creation failed");
    }

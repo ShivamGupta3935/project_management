@@ -54,7 +54,7 @@ const userSchema = new Schema(
       emailVerificationToken: {
          type: String,
       },
-      emailVerificationExpiry: {
+      emailTokenExpiry: {
          type: Date,
       },
    },
@@ -64,9 +64,9 @@ const userSchema = new Schema(
 );
 
 userSchema.pre("save", async function (next) {
-   if (!this.isModified("password")) return next();
+   if (!this.isModified("password")) return next;
    this.password = bcrypt.hash(this.password, 10);
-   next();
+   next;
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
@@ -100,7 +100,7 @@ userSchema.methods.generateRefreshToken = function () {
 
 userSchema.methods.generateTemporaryTokens = function(){
    const unhashedToken = crypto.randomBytes(20).toString()
-   const hashedToken = crypto.createHash("sha256")..update(unhashedToken).digest("hex")
+   const hashedToken = crypto.createHash("sha256").update(unhashedToken).digest("hex")
    const tokenExpiry = Date.now() + (20*60*1000)
 
    return{unhashedToken, hashedToken, tokenExpiry}

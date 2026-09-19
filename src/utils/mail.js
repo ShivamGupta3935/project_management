@@ -14,12 +14,12 @@ const sendEmail = async(options) => {
     
     const emailHtml = mailGenerator.generate(options.mailgenContent)
 
-    nodemailer.createTransport({
-        host: "http:example.com",
+    const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_MAILTRAP_HOST,
         port: 587,
         secure: false,
         auth:{
-            user: process.env.SMTP_MAILTRAP_HOST,
+            user: process.env.SMTP_MAILTRAP_USERNAME,
             pass: process.env.SMTP_MAILTRAP_PASSWORD
         }
     })
@@ -33,7 +33,7 @@ const sendEmail = async(options) => {
     }
 
     try {
-        await transporter.sendEmail(email)
+        await transporter.sendMail(email)
     } catch (error) {
         console.log("Error while sending email: ", error)
     }
