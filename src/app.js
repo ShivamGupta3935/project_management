@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors"
+import cookieParser from "cookie-parser";
+
 import { healthcheckRoute } from "./controllers/healthcheck.controllers.js";
 import authRouter from "./routes/auth.routes.js"
 
@@ -17,6 +19,7 @@ app.use(cors({
     methods: ["GET", "PUT", "POST", "PATCH", "OPTIONS", "DELETE"],
     allowedHeaders: ["Authorization", "Content-Type"]
 }))
+app.use(cookieParser())
 
 
 // route import 

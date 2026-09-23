@@ -12,10 +12,12 @@ const userRegisterValidation = () => {
          .withMessage("Invalid email"),
       body("username")
          .trim()
-         .toLowerCase()
          .notEmpty()
          .withMessage("username is required")
          .bail() //break the validation chain
+         .isLowercase()
+         .withMessage("username must be lowercase")
+         .bail()
          .isLength({ min: 3, max: 25 })
          .withMessage("username must be 3 to 25 chars long")
          .bail()
@@ -32,9 +34,31 @@ const userRegisterValidation = () => {
       body("fullname")
          .optional({ values: "falsy" })
          .trim()
-         .isLength({ min: 5 , max: 30})
+         .isLength({ min: 5, max: 30 })
          .withMessage("fullname must be between 5 to 30 chars long"),
    ];
 };
 
-export { userRegisterValidation };
+const userLoginValidation = () => {
+   return [
+      body("email")
+         .optional()
+         .trim()
+         .toLowerCase()
+         .notEmpty()
+         .withMessage("email is required")
+         .bail()
+         .isEmail()
+         .withMessage("Invalid email"),
+      body("username")
+         .optional()
+         .trim()
+         .notEmpty()
+         .withMessage("username is required")
+         .bail()
+         .isLowercase()
+         .withMessage("invalid username"),
+   ];
+};
+
+export { userRegisterValidation, userLoginValidation };
