@@ -7,8 +7,10 @@ import { emailVerficationMailgenContent, sendEmail } from "../utils/mail.js";
 const generateAccessAndRefreshToken = async (userId) => {
    try {
       const user = await User.findById(userId);
+
       const accessToken = await user.generateAccessToken();
       const refreshToken = await user.generateRefreshToken();
+
       user.refreshToken = refreshToken;
 
       await user.save({ validateBeforeSave: false });
@@ -34,7 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
       username,
       email,
       password,
-      fullname
+      fullname,
    });
 
    const { unhashedToken, hashedToken, tokenExpiry } =
@@ -45,7 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
    await user.save({ validateBeforeSave: false });
 
-   await sendEmail({ 
+   await sendEmail({
       email: user?.email,
       subject: "verify your email",
       mailgenContent: emailVerficationMailgenContent(
@@ -54,11 +56,9 @@ const registerUser = asyncHandler(async (req, res) => {
       ),
    });
 
-   const createdUser = await User.findById(user._id).select(
-      "-password ",
-   );
+   const createdUser = await User.findById(user._id).select("-password ");
 
-   console.log("created User : ", createdUser)
+   console.log("created User : ", createdUser);
    if (!createdUser) {
       throw new ApiError(401, "User creation failed");
    }
@@ -69,45 +69,43 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-    const {username, email, password} = req.body
+   const { username, email, password } = req.body;
 
-    if(!username && !email){
-      throw new ApiError(400, "username or email is required")
-    }
+   if (!username && !email) {
+      throw new ApiError(400, "username or email is required");
+   }
 
-    const user = await User.findOne({
-      $or: [{email}, {username}]
-    })
+   const user = await User.findOne({
+      $or: [{ email }, { username }],
+   });
 
-    if(!user){
-      throw new ApiError(401, "Invalid credentials")
-    }
+   if (!user) {
+      throw new ApiError(401, "Invalid credentials");
+   }
 
-    const isPasswordValid = await user.isPasswordCorrect(password)
+   const isPasswordValid = await user.isPasswordCorrect(password);
 
-    if(!isPasswordValid){
-      throw new ApiError(401, "Invalid credentials")
-    }
+   if (!isPasswordValid) {
+      throw new ApiError(401, "Invalid credentials");
+   }
 
-    const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
+   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+      user._id,
+   );
 
-    const loggedInUser = await User.findById(user._id).select("-password -forgotPasswordToken -emailVerificationToken -refreshToken")
+   const loggedInUser = await User.findById(user._id).select(
+      "-password -forgotPasswordToken -emailVerificationToken -refreshToken",
+   );
 
-    const cookieOptions = {
+   const cookieOptions = {
       httpOnly: true,
-      secure: true
-    }
+      secure: true,
+   };
 
-    res
-      .status(200)
+   res.status(200)
       .cookie("accessToken", accessToken, cookieOptions)
       .cookie("refreshToken", refreshToken, cookieOptions)
-      .json(
-         new ApiResponse(200, loggedInUser, "user loggedIN successfully")
-      )
-})
+      .json(new ApiResponse(200, loggedInUser, "user loggedIN successfully"));
+});
 
-export { 
-   registerUser,
-   login
-};
+export { registerUser, login };
