@@ -285,7 +285,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
       .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
-const forgotPassword = asyncHandler(async (req, res) => {
+const forgotPasswordRequest = asyncHandler(async (req, res) => {
    const { email } = req.body;
 
    const user = await User.findOne({ email });
@@ -354,6 +354,6 @@ export {
    resendEmailVerification,
    verifyEmail,
    changeCurrentPassword,
-   forgotPassword,
+   forgotPasswordRequest,
    resetForgotPassword,
 };
